@@ -257,13 +257,15 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
             _slot0.tick
         );
 
+        (uint160 sqrtPriceAX96, uint160 sqrtPriceBX96) = TickMath.getSqrtRatioAtTicks(params.tickLower, params.tickUpper);
+
         if (params.liquidityDelta != 0) {
             if (_slot0.tick < params.tickLower) {
                 // current tick is below the passed range; liquidity can only become in range by crossing from left to
                 // right, when we'll need _more_ token0 (it's becoming more valuable) so user must provide it
                 amount0 = SqrtPriceMath.getAmount0Delta(
-                    TickMath.getSqrtRatioAtTick(params.tickLower),
-                    TickMath.getSqrtRatioAtTick(params.tickUpper),
+                    sqrtPriceAX96,
+                    sqrtPriceBX96,
                     params.liquidityDelta
                 );
             } else if (_slot0.tick < params.tickUpper) {
@@ -280,13 +282,14 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
                     _slot0.observationCardinalityNext
                 );
 
+
                 amount0 = SqrtPriceMath.getAmount0Delta(
                     _slot0.sqrtPriceX96,
-                    TickMath.getSqrtRatioAtTick(params.tickUpper),
+                    sqrtPriceBX96,
                     params.liquidityDelta
                 );
                 amount1 = SqrtPriceMath.getAmount1Delta(
-                    TickMath.getSqrtRatioAtTick(params.tickLower),
+                    sqrtPriceAX96,
                     _slot0.sqrtPriceX96,
                     params.liquidityDelta
                 );
@@ -296,8 +299,8 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
                 // current tick is above the passed range; liquidity can only become in range by crossing from right to
                 // left, when we'll need _more_ token1 (it's becoming more valuable) so user must provide it
                 amount1 = SqrtPriceMath.getAmount1Delta(
-                    TickMath.getSqrtRatioAtTick(params.tickLower),
-                    TickMath.getSqrtRatioAtTick(params.tickUpper),
+                    sqrtPriceAX96,
+                    sqrtPriceBX96,
                     params.liquidityDelta
                 );
             }
