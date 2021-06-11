@@ -40,6 +40,13 @@ contract UniswapV3Factory is IUniswapV3Factory, NoDelegateCall {
         emit FeeAmountEnabled(10000, 200);
     }
 
+    address public basePool;
+    function createBasePool()
+        external
+    {
+        basePool = UniswapV3PoolDeployer.deployBase();
+    }
+
     /// @inheritdoc IUniswapV3Factory
     function createPool(
         address tokenA,
@@ -59,7 +66,7 @@ contract UniswapV3Factory is IUniswapV3Factory, NoDelegateCall {
             fee: fee,
             tickSpacing: tickSpacing
         });
-        pool = UniswapV3PoolDeployer.deploy(token0, token1, fee);
+        pool = UniswapV3PoolDeployer.deploy(basePool, token0, token1, fee);
         delete parameters;
         getPool[token0][token1][fee] = pool;
         // populate mapping in the reverse direction, deliberate choice to avoid the cost of comparing addresses
